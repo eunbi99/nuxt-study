@@ -1,9 +1,9 @@
 <template>
         <div class="app">
           <main>
-            <div>
-              <input type="text" />
-            </div>
+            <!-- :search-keyword='searchKeyword'
+              @input="updateSearchKeyword" 대신 v-model을 사용했음-->
+            <SearchInput v-model="searchKeyword" />
             <ul>
                 <li v-for="product in products" :key="product.id" class="item flex" @click="moveToDetailPage(product.id)">
                     <img class="product-image" :src="product.imageUrl" :alt="product.name" />
@@ -17,8 +17,10 @@
 
 <script>
 import axios from 'axios'
+import SearchInput from '@/components/SearchInput.vue'
 
 export default {
+      components: { SearchInput },
       async asyncData(){
         const response = await axios.get('http://localhost:3000/products')
 
@@ -31,11 +33,17 @@ export default {
         }))
         return { products } 
   },
-
+  data() {
+    return {
+      searchKeyword: '',
+    }
+  },
   methods:{
     moveToDetailPage(id) {
-      console.log(id)
       this.$router.push(`detail/${id}`)
+    },
+    updateSearchKeyword(keyword){
+      this.searchKeyword = keyword
     },
   }
 //   data(){
