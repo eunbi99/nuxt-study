@@ -1,9 +1,10 @@
+/* eslint-disable no-undef */
 <template>
         <div class="app">
           <main>
             <!-- :search-keyword='searchKeyword'
               @input="updateSearchKeyword" 대신 v-model을 사용했음-->
-            <SearchInput v-model="searchKeyword" />
+            <SearchInput v-model="searchKeyword" @search="searchProducts"></SearchInput>
             <ul>
                 <li v-for="product in products" :key="product.id" class="item flex" @click="moveToDetailPage(product.id)">
                     <img class="product-image" :src="product.imageUrl" :alt="product.name" />
@@ -18,15 +19,13 @@
 <script>
 import axios from 'axios'
 import SearchInput from '@/components/SearchInput.vue'
-
+import { fetchProductsByKeyword } from '@/api/index'
 export default {
       components: { SearchInput },
       async asyncData(){
         const response = await axios.get('http://localhost:3000/products')
-
-        /* eslint-disable no-console */
-        console.log(response)
-        /* eslint-enable no-console */
+        // eslint-disable-next-line no-console
+        console.log(response.data)
         const products = response.data.map((item) =>({
                 ...item,
                 imageUrl:`${item.imageUrl}?random=${Math.random()}`,
@@ -42,10 +41,16 @@ export default {
     moveToDetailPage(id) {
       this.$router.push(`detail/${id}`)
     },
-    updateSearchKeyword(keyword){
-      this.searchKeyword = keyword
+    async searchProducts(){
+      const response = await fetchProductsByKeyword(this.searchKeyword)
+      // eslint-disable-next-line no-console
+      console.log(response)
+      this.products=response.data.map((item) =>({
+                ...item,
+                imageUrl:`${item.imageUrl}?random=${Math.random()}`,
+        }))
     },
-  }
+  },
 //   data(){
 //       return {
 //           products: [],
